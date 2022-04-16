@@ -1,3 +1,4 @@
+//Visualize output and groundtruth data in Rviz when running Vinsmono with Flightgoogles dataset on Jetson (only have odo topic)
 #include "ros/ros.h"
 #include "nav_msgs/Odometry.h"
 #include "nav_msgs/Path.h"

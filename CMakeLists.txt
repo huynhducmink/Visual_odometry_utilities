@@ -137,12 +137,11 @@ include_directories(
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
 # add_executable(${PROJECT_NAME}_node src/read_topic_node.cpp)
-add_executable(read_topic src/read_topic.cpp)
-add_executable(show_in_rviz_flightgoogles src/show_in_rviz_flightgoogles.cpp)
-add_executable(show_in_rviz_euroc src/show_in_rviz_euroc.cpp)
-add_executable(show_in_rviz_lab_record src/show_in_rviz_lab_record.cpp)
-add_executable(show_in_rviz_jetson src/show_in_rviz_jetson.cpp)
-add_executable(show_in_rviz_rovio src/show_in_rviz_rovio.cpp)
+add_executable(rviz_flightgoogles src/rviz_flightgoogles.cpp)
+add_executable(rviz_euroc src/rviz_euroc.cpp)
+add_executable(rviz_lab_record src/rviz_lab_record.cpp)
+add_executable(rviz_jetson src/rviz_jetson.cpp)
+add_executable(rviz_rovio src/rviz_rovio.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -158,22 +157,19 @@ add_executable(show_in_rviz_rovio src/show_in_rviz_rovio.cpp)
 # target_link_libraries(${PROJECT_NAME}_node
 #   ${catkin_LIBRARIES}
 # )
- target_link_libraries(read_topic 
+ target_link_libraries(rviz_flightgoogles 
    ${catkin_LIBRARIES}
  )
- target_link_libraries(show_in_rviz_flightgoogles 
+ target_link_libraries(rviz_euroc 
    ${catkin_LIBRARIES}
  )
- target_link_libraries(show_in_rviz_euroc 
+ target_link_libraries(rviz_lab_record 
    ${catkin_LIBRARIES}
  )
- target_link_libraries(show_in_rviz_lab_record 
+ target_link_libraries(rviz_jetson 
    ${catkin_LIBRARIES}
  )
- target_link_libraries(show_in_rviz_jetson 
-   ${catkin_LIBRARIES}
- )
- target_link_libraries(show_in_rviz_rovio 
+ target_link_libraries(rviz_rovio 
    ${catkin_LIBRARIES}
  )
 

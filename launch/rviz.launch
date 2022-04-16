@@ -1,0 +1,7 @@
+<launch>
+
+    <node name="rvizvisualisation" pkg="rviz" type="rviz" output="log" args="-d $(find read_topic)/launch/rviz_config.rviz" />
+
+		<node name="show_in_rviz_rovio" pkg="read_topic" type="show_in_rviz_rovio" />
+
+</launch>

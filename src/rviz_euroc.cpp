@@ -1,5 +1,7 @@
 //Apply transform for different dataset file
 //This file is for MH_easy_01 Euroc dataset
+//Visualize output and groundtruth data in Rviz when running Vinsmono with Euroc dataset
+
 #include "ros/ros.h"
 #include "nav_msgs/Odometry.h"
 #include "nav_msgs/Path.h"

@@ -1,8 +1,6 @@
 # VINSMONO_groundtruth_visualization
 
-To run:
+To run: (@Quyen)
 ```php
-rosrun read_topic show_in_rviz_flightgoogles
+roslaunch read_topic rviz.launch
 ```
-
-then add topic in RVIZ
