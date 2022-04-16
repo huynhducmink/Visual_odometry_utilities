@@ -141,6 +141,8 @@ add_executable(read_topic src/read_topic.cpp)
 add_executable(show_in_rviz_flightgoogles src/show_in_rviz_flightgoogles.cpp)
 add_executable(show_in_rviz_euroc src/show_in_rviz_euroc.cpp)
 add_executable(show_in_rviz_lab_record src/show_in_rviz_lab_record.cpp)
+add_executable(show_in_rviz_jetson src/show_in_rviz_jetson.cpp)
+add_executable(show_in_rviz_rovio src/show_in_rviz_rovio.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -166,6 +168,12 @@ add_executable(show_in_rviz_lab_record src/show_in_rviz_lab_record.cpp)
    ${catkin_LIBRARIES}
  )
  target_link_libraries(show_in_rviz_lab_record 
+   ${catkin_LIBRARIES}
+ )
+ target_link_libraries(show_in_rviz_jetson 
+   ${catkin_LIBRARIES}
+ )
+ target_link_libraries(show_in_rviz_rovio 
    ${catkin_LIBRARIES}
  )
 
