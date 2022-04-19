@@ -38,7 +38,7 @@ void rovio_sub_callback(const geometry_msgs::PoseWithCovarianceStamped msg)
 	rovio_posestamped_msg.pose.position.z = rovio_msg.pose.pose.position.z;
 
 	rovio_path_msg.poses.push_back(rovio_posestamped_msg);
-	rovio_path_msg.header.frame_id = "world";
+	rovio_path_msg.header.frame_id = "ground_truth_frame";
 }
 
 int main(int argc, char **argv)
@@ -54,10 +54,15 @@ int main(int argc, char **argv)
 	ros::Subscriber rovio_sub = n.subscribe("/rovio/pose_with_covariance_stamped",1000,rovio_sub_callback);
   ros::Publisher rovio_pub_path = n.advertise<nav_msgs::Path>("/rovio_flightgoogles_path", 1000);
 
+	tf::TransformBroadcaster br;
+	tf::Transform transform(tf::Quaternion(0, 0.7071068, 0, 0.7071068),tf::Vector3(0,0,0));
+
   ros::Rate loop_rate(10);
 
   while (ros::ok())
   {
+		br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "world","ground_truth_frame"));
+
     ground_truth_pub_odo.publish(odo_msg);
     ground_truth_pub_path.publish(path_msg);
 

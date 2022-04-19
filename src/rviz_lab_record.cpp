@@ -4,7 +4,6 @@
 #include "nav_msgs/Path.h"
 #include "geometry_msgs/PoseStamped.h"
 #include "tf/transform_broadcaster.h"
-#include "tf/transform_broadcaster.h"
 #include <sstream>
 
 nav_msgs::Odometry odo_msg;
