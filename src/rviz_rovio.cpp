@@ -20,10 +20,11 @@ nav_msgs::Path rovio_path_msg;
 void groud_truth_sub_callback(const nav_msgs::Odometry msg)
 {
 	odo_msg = msg;
+	
 
-	posestamped_msg.pose.position.x = odo_msg.pose.pose.position.x;
-	posestamped_msg.pose.position.y = odo_msg.pose.pose.position.y;
-	posestamped_msg.pose.position.z = odo_msg.pose.pose.position.z;
+	posestamped_msg.pose.position.x = odo_msg.pose.pose.position.x - 18.5;
+	posestamped_msg.pose.position.y = odo_msg.pose.pose.position.y - 6.5;
+	posestamped_msg.pose.position.z = odo_msg.pose.pose.position.z -1;
 	
 	path_msg.poses.push_back(posestamped_msg);
 	path_msg.header.frame_id = "world";
@@ -33,17 +34,17 @@ void rovio_sub_callback(const geometry_msgs::PoseWithCovarianceStamped msg)
 {
 	rovio_msg = msg;
 
-	rovio_posestamped_msg.pose.position.x = rovio_msg.pose.pose.position.x;
-	rovio_posestamped_msg.pose.position.y = rovio_msg.pose.pose.position.y;
-	rovio_posestamped_msg.pose.position.z = rovio_msg.pose.pose.position.z;
+	rovio_posestamped_msg.pose.position.x = rovio_msg.pose.pose.position.x - 18.5;
+	rovio_posestamped_msg.pose.position.y = rovio_msg.pose.pose.position.y - 6.5;
+	rovio_posestamped_msg.pose.position.z = rovio_msg.pose.pose.position.z - 1;
 
 	rovio_path_msg.poses.push_back(rovio_posestamped_msg);
-	rovio_path_msg.header.frame_id = "ground_truth_frame";
+	rovio_path_msg.header.frame_id = "rovio_frame";
 }
 
 int main(int argc, char **argv)
 {
-  ros::init(argc, argv, "show_in_rviz_rovio");
+  ros::init(argc, argv, "rviz_rovio");
 
   ros::NodeHandle n;
 
@@ -55,13 +56,13 @@ int main(int argc, char **argv)
   ros::Publisher rovio_pub_path = n.advertise<nav_msgs::Path>("/rovio_flightgoogles_path", 1000);
 
 	tf::TransformBroadcaster br;
-	tf::Transform transform(tf::Quaternion(0, 0.7071068, 0, 0.7071068),tf::Vector3(0,0,0));
+	tf::Transform transform(tf::Quaternion(0.5, -0.5, 0.5, 0.5),tf::Vector3(0,0,0));
 
   ros::Rate loop_rate(10);
 
   while (ros::ok())
   {
-		br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "world","ground_truth_frame"));
+		br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "world","rovio_frame"));
 
     ground_truth_pub_odo.publish(odo_msg);
     ground_truth_pub_path.publish(path_msg);
