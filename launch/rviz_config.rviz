@@ -8,7 +8,7 @@ Panels:
         - /Status1
         - /ROVIO_Path1
         - /Groundtruth_Path1
-        - /ROVIO_Axes1
+        - /Groundtruth_Odometry1
       Splitter Ratio: 0.5
     Tree Height: 663
   - Class: rviz/Selection
@@ -112,6 +112,41 @@ Visualization Manager:
       Reference Frame: imu
       Show Trail: false
       Value: true
+    - Angle Tolerance: 0.10000000149011612
+      Class: rviz/Odometry
+      Covariance:
+        Orientation:
+          Alpha: 0.5
+          Color: 255; 255; 127
+          Color Style: Unique
+          Frame: Local
+          Offset: 1
+          Scale: 1
+          Value: true
+        Position:
+          Alpha: 0.30000001192092896
+          Color: 204; 51; 204
+          Scale: 1
+          Value: true
+        Value: true
+      Enabled: true
+      Keep: 1
+      Name: Groundtruth_Odometry
+      Position Tolerance: 0.10000000149011612
+      Queue Size: 10
+      Shape:
+        Alpha: 1
+        Axes Length: 1
+        Axes Radius: 0.10000000149011612
+        Color: 255; 25; 0
+        Head Length: 0.30000001192092896
+        Head Radius: 0.10000000149011612
+        Shaft Length: 1
+        Shaft Radius: 0.05000000074505806
+        Value: Arrow
+      Topic: /ground_truth_flightgoogles_odo
+      Unreliable: false
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -140,7 +175,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 61.77656936645508
+      Distance: 9.906831741333008
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -148,17 +183,17 @@ Visualization Manager:
         Value: false
       Field of View: 0.7853981852531433
       Focal Point:
-        X: 4.272477626800537
-        Y: -1.4090498685836792
-        Z: 0.17286527156829834
+        X: 0.05421002581715584
+        Y: -1.3293743133544922
+        Z: 2.916928291320801
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.6303978562355042
+      Pitch: 0.9397974014282227
       Target Frame: <Fixed Frame>
-      Yaw: 1.2003978490829468
+      Yaw: 0.915397584438324
     Saved: ~
 Window Geometry:
   Displays:
