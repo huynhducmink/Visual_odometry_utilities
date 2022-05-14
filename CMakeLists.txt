@@ -143,6 +143,7 @@ add_executable(rviz_lab_record src/rviz_lab_record.cpp)
 add_executable(rviz_jetson src/rviz_jetson.cpp)
 add_executable(rviz_rovio_flightgoogles src/rviz_rovio_flightgoogles.cpp)
 add_executable(rviz_rovio_euroc src/rviz_rovio_euroc.cpp)
+add_executable(rviz_quyen_flightgoogles src/rviz_quyen_flightgoogles.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -174,6 +175,9 @@ add_executable(rviz_rovio_euroc src/rviz_rovio_euroc.cpp)
    ${catkin_LIBRARIES}
  )
  target_link_libraries(rviz_rovio_euroc 
+   ${catkin_LIBRARIES}
+ )
+ target_link_libraries(rviz_quyen_flightgoogles 
    ${catkin_LIBRARIES}
  )
 
