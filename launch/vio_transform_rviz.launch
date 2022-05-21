@@ -2,6 +2,6 @@
 
     <node name="rvizvisualisation" pkg="rviz" type="rviz" output="log" args="-d $(find read_topic)/launch/rviz_config.rviz" />
 
-		<node name="rviz_rovio_flightgoogles" pkg="read_topic" type="rviz_rovio_flightgoogles" />
+		<node name="vio_transform" pkg="read_topic" type="vio_transform" />
 
 </launch>
