@@ -64,6 +64,34 @@ void ground_truth_sub_callback(const nav_msgs::Odometry msg)
   }
 }
 
+void ground_truth_sub_callback_temp(const geometry_msgs::PoseWithCovarianceStamped msg)
+{
+  if (init_transformation_matrix == true)
+  {
+    q.x() = msg.pose.pose.orientation.x;
+    q.y() = msg.pose.pose.orientation.y;
+    q.z() = msg.pose.pose.orientation.z;
+    q.w() = msg.pose.pose.orientation.w;
+    R = q.toRotationMatrix();
+    world_to_body << R(0, 0), R(0, 1), R(0, 2), msg.pose.pose.position.x,
+        R(1, 0), R(1, 1), R(1, 2), msg.pose.pose.position.y,
+        R(2, 0), R(2, 1), R(2, 2), msg.pose.pose.position.z,
+        0, 0, 0, 1;
+    init_transformation_matrix = false;
+    ROS_INFO("Initialize transformation matrix successfully!");
+  }
+  else
+  {
+    gt_posestamped_msg.pose.position.x = msg.pose.pose.position.x;
+    gt_posestamped_msg.pose.position.y = msg.pose.pose.position.y;
+    gt_posestamped_msg.pose.position.z = msg.pose.pose.position.z;
+
+    gt_path_msg.poses.push_back(gt_posestamped_msg);
+    gt_odo_msg.header.frame_id = "world";
+    gt_path_msg.header.frame_id = "world";
+  }
+}
+
 void vins_vio_odo_sub_callback(const nav_msgs::Odometry msg)
 {
   vio_output << msg.pose.pose.position.x,msg.pose.pose.position.y,msg.pose.pose.position.z,1;
@@ -137,8 +165,10 @@ int main(int argc, char **argv)
   ROS_INFO("Input 2 for euroc (Not working yet as groundtruth of EUROC is in different format)");
   ROS_INFO("Input 3 for airsim");
   ROS_INFO("Input 4 for flightmare");
+  ROS_INFO("Input 5 for flightmare (temp) (pose_with_covariance groundtruth)");
 
-  std::string groundtruth_topic;
+  std::string groundtruth_topic = "/uav/odometry"; //default
+  std::string groundtruth_topic_temp = "/uav/odometry"; //default
 
   std::cin >> groundtruth_choice;
   if (groundtruth_choice == 1){
@@ -157,6 +187,10 @@ int main(int argc, char **argv)
     groundtruth_topic = "/hummingbird/ground_truth/odometry";
     ROS_INFO("Transforming output of flightmare dataset");
   }
+  else if (groundtruth_choice == 5){
+    groundtruth_topic_temp = "/hummingbird/ground_truth/pose_with_covariance";
+    ROS_INFO("Transforming output of flightmare dataset (temp) (pose_with_covariance groundtruth)");
+  }
   else{
     groundtruth_topic = "/uav/odometry";
     ROS_INFO("Transforming output of flightgoogles dataset");
@@ -166,6 +200,7 @@ int main(int argc, char **argv)
   ros::Publisher ground_truth_pub_odo = n.advertise<nav_msgs::Odometry>("/ground_truth_odo", 1);
   ros::Publisher ground_truth_pub_path = n.advertise<nav_msgs::Path>("/ground_truth_path", 1);
 	ros::Subscriber groud_truth_sub = n.subscribe(groundtruth_topic,1,ground_truth_sub_callback);
+	ros::Subscriber groud_truth_sub_temp = n.subscribe(groundtruth_topic_temp,1,ground_truth_sub_callback_temp);
 
   ros::Publisher vio_pub_odo = n.advertise<nav_msgs::Odometry>("/vio_odo", 1);
   ros::Publisher vio_pub_path = n.advertise<nav_msgs::Path>("/vio_path", 1);
