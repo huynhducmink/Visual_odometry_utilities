@@ -167,8 +167,8 @@ int main(int argc, char **argv)
   ROS_INFO("Input 4 for flightmare");
   ROS_INFO("Input 5 for flightmare (temp) (pose_with_covariance groundtruth)");
 
-  std::string groundtruth_topic = "/uav/odometry"; //default
-  std::string groundtruth_topic_temp = "/uav/odometry"; //default
+  std::string groundtruth_topic = "/default1"; //default
+  std::string groundtruth_topic_temp = "/default2"; //default
 
   std::cin >> groundtruth_choice;
   if (groundtruth_choice == 1){
@@ -203,6 +203,7 @@ int main(int argc, char **argv)
 	ros::Subscriber groud_truth_sub_temp = n.subscribe(groundtruth_topic_temp,1,ground_truth_sub_callback_temp);
 
   ros::Publisher vio_pub_odo = n.advertise<nav_msgs::Odometry>("/vio_odo", 1);
+  ros::Publisher vio_pub_odo_posestamped = n.advertise<geometry_msgs::PoseStamped>("/vio_odo_posestamped", 1);
   ros::Publisher vio_pub_path = n.advertise<nav_msgs::Path>("/vio_path", 1);
 	ros::Subscriber vins_vio_odo_sub = n.subscribe("/vins_estimator/odometry",1,vins_vio_odo_sub_callback);
 	ros::Subscriber rovio_vio_odo_sub = n.subscribe("/rovio/pose_with_covariance_stamped",1,rovio_vio_odo_sub_callback);
@@ -215,6 +216,7 @@ int main(int argc, char **argv)
     ground_truth_pub_odo.publish(gt_odo_msg);
     ground_truth_pub_path.publish(gt_path_msg);
     vio_pub_odo.publish(vio_odo_msg);
+    vio_pub_odo_posestamped.publish(vio_posestamped_msg);
     vio_pub_path.publish(vio_path_msg);
     ros::spinOnce();
     loop_rate.sleep();
