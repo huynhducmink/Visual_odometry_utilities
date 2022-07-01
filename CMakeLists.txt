@@ -106,9 +106,9 @@ find_package(catkin REQUIRED COMPONENTS
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-#  INCLUDE_DIRS include
+  INCLUDE_DIRS include
 #  LIBRARIES read_topic
-#  CATKIN_DEPENDS nav_msgs roscpp rospy sensor_msgs
+  CATKIN_DEPENDS nav_msgs roscpp rospy sensor_msgs
 #  DEPENDS system_lib
 )
 
@@ -119,14 +119,12 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
-# include
+  include
   ${catkin_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library
-# add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/read_topic.cpp
-# )
+ add_library(vio_transform_lib src/vio_transform_lib.cpp)
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
@@ -137,13 +135,6 @@ include_directories(
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
 # add_executable(${PROJECT_NAME}_node src/read_topic_node.cpp)
-add_executable(rviz_flightgoogles src/rviz_flightgoogles.cpp)
-add_executable(rviz_euroc src/rviz_euroc.cpp)
-add_executable(rviz_lab_record src/rviz_lab_record.cpp)
-add_executable(rviz_jetson src/rviz_jetson.cpp)
-add_executable(rviz_rovio_flightgoogles src/rviz_rovio_flightgoogles.cpp)
-add_executable(rviz_rovio_euroc src/rviz_rovio_euroc.cpp)
-add_executable(rviz_quyen_flightgoogles src/rviz_quyen_flightgoogles.cpp)
 add_executable(vio_transform src/vio_transform.cpp)
 
 ## Rename C++ executable without prefix
@@ -160,30 +151,12 @@ add_executable(vio_transform src/vio_transform.cpp)
 # target_link_libraries(${PROJECT_NAME}_node
 #   ${catkin_LIBRARIES}
 # )
- target_link_libraries(rviz_flightgoogles 
-   ${catkin_LIBRARIES}
- )
- target_link_libraries(rviz_euroc 
-   ${catkin_LIBRARIES}
- )
- target_link_libraries(rviz_lab_record 
-   ${catkin_LIBRARIES}
- )
- target_link_libraries(rviz_jetson 
-   ${catkin_LIBRARIES}
- )
- target_link_libraries(rviz_rovio_flightgoogles 
-   ${catkin_LIBRARIES}
- )
- target_link_libraries(rviz_rovio_euroc 
-   ${catkin_LIBRARIES}
- )
- target_link_libraries(rviz_quyen_flightgoogles 
-   ${catkin_LIBRARIES}
- )
- target_link_libraries(vio_transform 
-   ${catkin_LIBRARIES}
- )
+target_link_libraries(vio_transform_lib
+  ${catkin_LIBRARIES}
+)
+target_link_libraries(vio_transform
+  vio_transform_lib
+)
 
 #############
 ## Install ##
