@@ -10,6 +10,7 @@ project(read_topic)
 find_package(catkin REQUIRED COMPONENTS
   nav_msgs
 	geometry_msgs
+  gazebo_msgs
   roscpp
   rospy
   sensor_msgs
@@ -108,7 +109,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
   INCLUDE_DIRS include
 #  LIBRARIES read_topic
-  CATKIN_DEPENDS nav_msgs roscpp rospy sensor_msgs
+  CATKIN_DEPENDS nav_msgs roscpp rospy sensor_msgs gazebo_msgs geometry_msgs
 #  DEPENDS system_lib
 )
 

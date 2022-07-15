@@ -2,6 +2,7 @@
 
 VIO_transform::VIO_transform(const ros::NodeHandle &nh, const ros::NodeHandle &nh_private) : nh_(nh), nh_private_(nh_private)
 {
+    sendTransform(tf::Vector3(0,0,0),tf::Quaternion(0,0,0,1)); //to init transformation to not show transformation error before the state estimation initialize
     groundtruth_type_choice();
 }
 
@@ -34,7 +35,7 @@ void VIO_transform::groundtruth_type_choice(){
     }
     else if (groundtruth_choice == 4)
     {
-        groundtruth_topic = "/hummingbird/ground_truth/odometry";
+        groundtruth_topic = "/mavros/local_position/odom";
         ROS_INFO("Transforming output of flightmare dataset");
     }
     else if (groundtruth_choice == 5)
@@ -53,11 +54,22 @@ void VIO_transform::groundtruth_type_choice(){
 }
 
 void VIO_transform::init_pub_sub(){
+    // groundtruth taken from mavros
     ground_truth_pub_odo = nh_.advertise<nav_msgs::Odometry>("/ground_truth_odo", 10);
     ground_truth_pub_path = nh_.advertise<nav_msgs::Path>("/ground_truth_path", 10);
     groud_truth_sub = nh_.subscribe(groundtruth_topic, 10, &VIO_transform::ground_truth_sub_callback, this);
     groud_truth_sub_temp = nh_.subscribe(groundtruth_topic_temp, 10, &VIO_transform::ground_truth_sub_callback_temp, this);
 
+    // groundtruth taken from Gazebo API
+    gazebo_pub_odo = nh_.advertise<nav_msgs::Odometry>("/gazebo_groundtruth_odo",10);
+    gazebo_pub_path = nh_.advertise<nav_msgs::Path>("/gazebo_groundtruth_path",10);
+    VIO_transform::gazebo_state_client = nh_.serviceClient<gazebo_msgs::GetModelState>("/gazebo/get_model_state");
+    
+
+    // state estimation
+    vio_pub_odo = nh_.advertise<nav_msgs::Odometry>("/vio_odo",1);
+    vio_pub_odo_to_px4 = nh_.advertise<nav_msgs::Odometry>("/mavros/odometry/out",1);
+    vio_pub_odo_posestamped_to_px4 = nh_.advertise<geometry_msgs::PoseStamped>("/mavros/vision_pose/pose",1);
     vio_pub_odo_posestamped = nh_.advertise<geometry_msgs::PoseStamped>("/vio_odo_posestamped", 1);
     vio_pub_path = nh_.advertise<nav_msgs::Path>("/vio_path", 10);
     vins_vio_odo_sub = nh_.subscribe("/vins_estimator/odometry", 10, &VIO_transform::vins_vio_odo_sub_callback, this);
@@ -71,12 +83,39 @@ void VIO_transform::init_pub_sub(){
 }
 
 void VIO_transform::transforming_VIO_output(){
+    world_vio_posestamped_msg.pose.orientation.w=1;
   while (ros::ok())
   {
     ground_truth_pub_odo.publish(gt_odo_msg);
     ground_truth_pub_path.publish(gt_path_msg);
+
+    gazebo_pub_odo.publish(gazebo_odo_msg);
+    gazebo_pub_path.publish(gazebo_path_msg);
+
+    vio_pub_odo.publish(world_vio_odo_msg);
+    vio_pub_odo_to_px4.publish(vio_odo_to_px4_msg);
     vio_pub_odo_posestamped.publish(world_vio_posestamped_msg);
+    //vio_pub_odo_posestamped_to_px4.publish(vio_posestamped_to_px4_msg);
     vio_pub_path.publish(world_vio_path_msg);
+    //std::cout << "Current VIO position in world: " << world_vio_odo_msg.pose.pose.position.x << " | " 
+    //    << world_vio_odo_msg.pose.pose.position.y << " | " 
+    //    << world_vio_odo_msg.pose.pose.position.z << std::endl;
+    //std::cout << "Current groundtruth position in world: " << gt_odo_msg.pose.pose.position.x << " | " 
+    //    << gt_odo_msg.pose.pose.position.y << " | " 
+    //    << gt_odo_msg.pose.pose.position.z << std::endl;
+    gazebo_getmodelstate.request.model_name="iris";
+    if (gazebo_state_client.call(gazebo_getmodelstate)){
+        gazebo_odo_msg.pose.pose = gazebo_getmodelstate.response.pose;
+        gazebo_odo_msg.twist.twist = gazebo_getmodelstate.response.twist;
+        gazebo_odo_msg.header.frame_id = "world";
+        gazebo_posestamped_msg.pose.position = gazebo_getmodelstate.response.pose.position;
+        gazebo_posestamped_msg.pose.orientation = gazebo_getmodelstate.response.pose.orientation;
+        gazebo_path_msg.poses.push_back(gazebo_posestamped_msg);
+        gazebo_path_msg.header.frame_id = "world";
+        gazebo_pub_odo.publish(gazebo_odo_msg);
+        gazebo_pub_path.publish(gazebo_path_msg);
+    }
+    else{}
     ros::spinOnce();
     loop_rate.sleep();
   }
@@ -133,10 +172,22 @@ void VIO_transform::ground_truth_sub_callback_temp(const geometry_msgs::PoseWith
 
 void VIO_transform::vins_vio_odo_sub_callback(const nav_msgs::Odometry msg)
 {
+    //test msg to px4
+    vio_posestamped_to_px4_msg.pose.position.x = msg.pose.pose.position.y; 
+    vio_posestamped_to_px4_msg.pose.position.y = msg.pose.pose.position.x; 
+    vio_posestamped_to_px4_msg.pose.position.z = -msg.pose.pose.position.z; 
+
+    vio_odo_to_px4_msg.pose = msg.pose;
+    vio_odo_to_px4_msg.header.frame_id = "odom";
+    vio_odo_to_px4_msg.child_frame_id = "base_link";
+
     vio_posestamped_msg.pose = msg.pose.pose;
     vio_posestamped_msg.header.frame_id = "vio_frame";
     listener_transform.transformPose("world", vio_posestamped_msg, world_vio_posestamped_msg);
     world_vio_path_msg.poses.push_back(world_vio_posestamped_msg);
+    world_vio_odo_msg.pose.pose = world_vio_posestamped_msg.pose;
+    world_vio_odo_msg.header = world_vio_posestamped_msg.header;
+    world_vio_odo_msg.header.frame_id = "world";
     world_vio_posestamped_msg.header.frame_id = "world";
     world_vio_path_msg.header.frame_id = "world";
 }
@@ -147,6 +198,9 @@ void VIO_transform::rovio_vio_odo_sub_callback(const geometry_msgs::PoseWithCova
     vio_posestamped_msg.header.frame_id = "vio_frame";
     listener_transform.transformPose("world", vio_posestamped_msg, world_vio_posestamped_msg);
     world_vio_path_msg.poses.push_back(world_vio_posestamped_msg);
+    world_vio_odo_msg.pose.pose = world_vio_posestamped_msg.pose;
+    world_vio_odo_msg.header = world_vio_posestamped_msg.header;
+    world_vio_odo_msg.header.frame_id = "world";
     world_vio_posestamped_msg.header.frame_id = "world";
     world_vio_path_msg.header.frame_id = "world";
 }
@@ -157,6 +211,9 @@ void VIO_transform::orbslam3_vio_odo_sub_callback(const geometry_msgs::PoseStamp
     vio_posestamped_msg.header.frame_id = "vio_frame";
     listener_transform.transformPose("world", vio_posestamped_msg, world_vio_posestamped_msg);
     world_vio_path_msg.poses.push_back(world_vio_posestamped_msg);
+    world_vio_odo_msg.pose.pose = world_vio_posestamped_msg.pose;
+    world_vio_odo_msg.header = world_vio_posestamped_msg.header;
+    world_vio_odo_msg.header.frame_id = "world";
     world_vio_posestamped_msg.header.frame_id = "world";
     world_vio_path_msg.header.frame_id = "world";
 }
