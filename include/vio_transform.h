@@ -32,6 +32,7 @@ private:
     // From Gazebo API
     ros::Subscriber gazebo_sub_odo_pose;
     ros::Publisher gazebo_pub_odo;
+    ros::Publisher gazebo_pub_posestamped;
     ros::Publisher gazebo_pub_path;
 
     ros::Publisher vio_pub_odo;
@@ -43,7 +44,7 @@ private:
     ros::Subscriber rovio_vio_odo_sub;
     ros::Subscriber orbslam3_vio_odo_sub;
 
-    ros::Rate loop_rate = 10;
+    ros::Rate loop_rate = 5;
 
     std::string groundtruth_topic = "/default1";      // default
     std::string groundtruth_topic_temp = "/default2"; // default

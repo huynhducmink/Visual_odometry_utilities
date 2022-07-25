@@ -62,6 +62,7 @@ void VIO_transform::init_pub_sub(){
 
     // groundtruth taken from Gazebo API
     gazebo_pub_odo = nh_.advertise<nav_msgs::Odometry>("/gazebo_groundtruth_odo",10);
+    gazebo_pub_posestamped = nh_.advertise<geometry_msgs::PoseStamped>("/gazebo_groundtruth_posestamped",10);
     gazebo_pub_path = nh_.advertise<nav_msgs::Path>("/gazebo_groundtruth_path",10);
     VIO_transform::gazebo_state_client = nh_.serviceClient<gazebo_msgs::GetModelState>("/gazebo/get_model_state");
     
@@ -110,9 +111,12 @@ void VIO_transform::transforming_VIO_output(){
         gazebo_odo_msg.header.frame_id = "world";
         gazebo_posestamped_msg.pose.position = gazebo_getmodelstate.response.pose.position;
         gazebo_posestamped_msg.pose.orientation = gazebo_getmodelstate.response.pose.orientation;
+        gazebo_posestamped_msg.header.frame_id = "world";
         gazebo_path_msg.poses.push_back(gazebo_posestamped_msg);
         gazebo_path_msg.header.frame_id = "world";
+
         gazebo_pub_odo.publish(gazebo_odo_msg);
+        gazebo_pub_posestamped.publish(gazebo_posestamped_msg);
         gazebo_pub_path.publish(gazebo_path_msg);
     }
     else{}
