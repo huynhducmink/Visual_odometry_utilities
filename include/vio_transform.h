@@ -44,7 +44,7 @@ private:
     ros::Subscriber rovio_vio_odo_sub;
     ros::Subscriber orbslam3_vio_odo_sub;
 
-    ros::Rate loop_rate = 5;
+    ros::Rate loop_rate = 20;
 
     std::string groundtruth_topic = "/default1";      // default
     std::string groundtruth_topic_temp = "/default2"; // default
