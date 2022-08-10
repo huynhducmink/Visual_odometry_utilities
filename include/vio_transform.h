@@ -5,6 +5,7 @@
 #include "geometry_msgs/PoseWithCovarianceStamped.h"
 #include "gazebo_msgs/ModelState.h"
 #include "gazebo_msgs/GetModelState.h"
+#include "std_msgs/Bool.h"
 #include "tf/transform_broadcaster.h"
 #include "tf/transform_listener.h"
 #include <sstream>
@@ -41,10 +42,11 @@ private:
     ros::Publisher vio_pub_odo_posestamped_to_px4;
     ros::Publisher vio_pub_path;
     ros::Subscriber vins_vio_odo_sub;
+    ros::Subscriber vins_bool_receive_first_image;
     ros::Subscriber rovio_vio_odo_sub;
     ros::Subscriber orbslam3_vio_odo_sub;
 
-    ros::Rate loop_rate = 5;
+    ros::Rate loop_rate = 30;
 
     std::string groundtruth_topic = "/default1";      // default
     std::string groundtruth_topic_temp = "/default2"; // default
@@ -82,6 +84,9 @@ private:
     tf::StampedTransform ln_transform;
 
     // Run 1 time to take the first message of the ground truth odometry to construct the transformation matrix
+    // In this case (running using simulation data), the package take the first image return from gazebo state and use it as the transform for odometry from camera frame to world frame
+    // Change to true when receiving the signal that VIO have the first image msg
+    // Todo: change to use lookupTransform
     bool init_transformation = false;
 
     void groundtruth_type_choice();
@@ -89,12 +94,12 @@ private:
     void transforming_VIO_output();
     void sendTransform(tf::Vector3 input_origin, tf::Quaternion input_rotation);
 
-    void ground_truth_sub_callback(const nav_msgs::Odometry msg);
-    void ground_truth_sub_callback_temp(const geometry_msgs::PoseWithCovarianceStamped msg);
+    void ground_truth_sub_callback(const geometry_msgs::PoseStamped msg);
 
     ros::ServiceClient gazebo_state_client;
 
     void vins_vio_odo_sub_callback(const nav_msgs::Odometry msg);
+    void vins_bool_receive_first_image_callback(const std_msgs::Bool msg);
     void rovio_vio_odo_sub_callback(const geometry_msgs::PoseWithCovarianceStamped msg);
     void orbslam3_vio_odo_sub_callback(const geometry_msgs::PoseStamped msg);
 };

@@ -15,7 +15,6 @@ void VIO_transform::groundtruth_type_choice(){
     ROS_INFO("Input 2 for euroc (Not working yet (work in progress))");
     ROS_INFO("Input 3 for airsim");
     ROS_INFO("Input 4 for flightmare");
-    ROS_INFO("Input 5 for flightmare (temp) (pose_with_covariance groundtruth)");
 
     std::cin >> groundtruth_choice;
     if (groundtruth_choice == 1)
@@ -35,13 +34,8 @@ void VIO_transform::groundtruth_type_choice(){
     }
     else if (groundtruth_choice == 4)
     {
-        groundtruth_topic = "/mavros/local_position/odom";
+        groundtruth_topic = "/gazebo_groundtruth_posestamped";
         ROS_INFO("Transforming output of flightmare dataset");
-    }
-    else if (groundtruth_choice == 5)
-    {
-        groundtruth_topic_temp = "/hummingbird/ground_truth/pose_with_covariance";
-        ROS_INFO("Transforming output of flightmare dataset (temp) (pose_with_covariance groundtruth)");
     }
     else
     {
@@ -58,7 +52,6 @@ void VIO_transform::init_pub_sub(){
     ground_truth_pub_odo = nh_.advertise<nav_msgs::Odometry>("/ground_truth_odo", 10);
     ground_truth_pub_path = nh_.advertise<nav_msgs::Path>("/ground_truth_path", 10);
     groud_truth_sub = nh_.subscribe(groundtruth_topic, 10, &VIO_transform::ground_truth_sub_callback, this);
-    groud_truth_sub_temp = nh_.subscribe(groundtruth_topic_temp, 10, &VIO_transform::ground_truth_sub_callback_temp, this);
 
     // groundtruth taken from Gazebo API
     gazebo_pub_odo = nh_.advertise<nav_msgs::Odometry>("/gazebo_groundtruth_odo",10);
@@ -74,6 +67,7 @@ void VIO_transform::init_pub_sub(){
     vio_pub_odo_posestamped = nh_.advertise<geometry_msgs::PoseStamped>("/vio_odo_posestamped", 1);
     vio_pub_path = nh_.advertise<nav_msgs::Path>("/vio_path", 10);
     vins_vio_odo_sub = nh_.subscribe("/vins_estimator/odometry", 10, &VIO_transform::vins_vio_odo_sub_callback, this);
+    vins_bool_receive_first_image = nh_.subscribe("/vins_estimator/bool_receive_first_image", 10, &VIO_transform::vins_bool_receive_first_image_callback, this);
     rovio_vio_odo_sub = nh_.subscribe("/rovio/pose_with_covariance_stamped", 10, &VIO_transform::rovio_vio_odo_sub_callback, this);
     orbslam3_vio_odo_sub = nh_.subscribe("/out_odom", 10, &VIO_transform::orbslam3_vio_odo_sub_callback, this);
 
@@ -130,61 +124,31 @@ void VIO_transform::sendTransform(tf::Vector3 input_origin, tf::Quaternion input
     br_transform.setOrigin(input_origin);
     br_transform.setRotation(input_rotation);
     broadcaster_transform.sendTransform(tf::StampedTransform(br_transform, ros::Time::now(), "world", "vio_frame"));
+    init_transformation = false;
 }
 
-void VIO_transform::ground_truth_sub_callback(const nav_msgs::Odometry msg)
+void VIO_transform::ground_truth_sub_callback(const geometry_msgs::PoseStamped msg)
 {
     if (init_transformation == true)
     {
-        sendTransform(tf::Vector3(msg.pose.pose.position.x, msg.pose.pose.position.y, msg.pose.pose.position.z),
-                      tf::Quaternion(msg.pose.pose.orientation.x, msg.pose.pose.orientation.y, msg.pose.pose.orientation.z, msg.pose.pose.orientation.w));
-        init_transformation = false;
+        sendTransform(tf::Vector3(msg.pose.position.x, msg.pose.position.y, msg.pose.position.z),
+                      tf::Quaternion(msg.pose.orientation.x, msg.pose.orientation.y, msg.pose.orientation.z, msg.pose.orientation.w));
+        std::cout << msg.pose.position.x << " | " << msg.pose.position.y << " | " << msg.pose.position.z << std::endl;
     }
-    else
-    {
-        gt_odo_msg = msg;
+    gt_odo_msg.pose.pose = msg.pose;
 
-        gt_posestamped_msg.pose.position.x = gt_odo_msg.pose.pose.position.x;
-        gt_posestamped_msg.pose.position.y = gt_odo_msg.pose.pose.position.y;
-        gt_posestamped_msg.pose.position.z = gt_odo_msg.pose.pose.position.z;
+    gt_posestamped_msg.pose.position.x = gt_odo_msg.pose.pose.position.x;
+    gt_posestamped_msg.pose.position.y = gt_odo_msg.pose.pose.position.y;
+    gt_posestamped_msg.pose.position.z = gt_odo_msg.pose.pose.position.z;
 
-        gt_path_msg.poses.push_back(gt_posestamped_msg);
-        gt_odo_msg.header.frame_id = "world";
-        gt_path_msg.header.frame_id = "world";
-    }
+    gt_path_msg.poses.push_back(gt_posestamped_msg);
+    gt_odo_msg.header.frame_id = "world";
+    gt_path_msg.header.frame_id = "world";
 }
 
-void VIO_transform::ground_truth_sub_callback_temp(const geometry_msgs::PoseWithCovarianceStamped msg)
-{
-    if (init_transformation == true)
-    {
-        sendTransform(tf::Vector3(msg.pose.pose.position.x, msg.pose.pose.position.y, msg.pose.pose.position.z),
-                      tf::Quaternion(msg.pose.pose.orientation.x, msg.pose.pose.orientation.y, msg.pose.pose.orientation.z, msg.pose.pose.orientation.w));
-        init_transformation = false;
-    }
-    else
-    {
-        gt_posestamped_msg.pose.position.x = msg.pose.pose.position.x;
-        gt_posestamped_msg.pose.position.y = msg.pose.pose.position.y;
-        gt_posestamped_msg.pose.position.z = msg.pose.pose.position.z;
-
-        gt_path_msg.poses.push_back(gt_posestamped_msg);
-        gt_odo_msg.header.frame_id = "world";
-        gt_path_msg.header.frame_id = "world";
-    }
-}
 
 void VIO_transform::vins_vio_odo_sub_callback(const nav_msgs::Odometry msg)
 {
-    //test msg to px4
-    vio_posestamped_to_px4_msg.pose.position.x = msg.pose.pose.position.y; 
-    vio_posestamped_to_px4_msg.pose.position.y = msg.pose.pose.position.x; 
-    vio_posestamped_to_px4_msg.pose.position.z = -msg.pose.pose.position.z; 
-
-    vio_odo_to_px4_msg.pose = msg.pose;
-    vio_odo_to_px4_msg.header.frame_id = "odom";
-    vio_odo_to_px4_msg.child_frame_id = "base_link";
-
     vio_posestamped_msg.pose = msg.pose.pose;
     vio_posestamped_msg.header.frame_id = "vio_frame";
     listener_transform.transformPose("world", vio_posestamped_msg, world_vio_posestamped_msg);
@@ -220,4 +184,10 @@ void VIO_transform::orbslam3_vio_odo_sub_callback(const geometry_msgs::PoseStamp
     world_vio_odo_msg.header.frame_id = "world";
     world_vio_posestamped_msg.header.frame_id = "world";
     world_vio_path_msg.header.frame_id = "world";
+}
+
+void VIO_transform::vins_bool_receive_first_image_callback(const std_msgs::Bool msg){
+    if (msg.data == true){
+        init_transformation = true;
+    }
 }
