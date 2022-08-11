@@ -98,22 +98,22 @@ void VIO_transform::transforming_VIO_output(){
     //std::cout << "Current groundtruth position in world: " << gt_odo_msg.pose.pose.position.x << " | " 
     //    << gt_odo_msg.pose.pose.position.y << " | " 
     //    << gt_odo_msg.pose.pose.position.z << std::endl;
-    gazebo_getmodelstate.request.model_name="iris";
-    if (gazebo_state_client.call(gazebo_getmodelstate)){
-        gazebo_odo_msg.pose.pose = gazebo_getmodelstate.response.pose;
-        gazebo_odo_msg.twist.twist = gazebo_getmodelstate.response.twist;
-        gazebo_odo_msg.header.frame_id = "world";
-        gazebo_posestamped_msg.pose.position = gazebo_getmodelstate.response.pose.position;
-        gazebo_posestamped_msg.pose.orientation = gazebo_getmodelstate.response.pose.orientation;
-        gazebo_posestamped_msg.header.frame_id = "world";
-        gazebo_path_msg.poses.push_back(gazebo_posestamped_msg);
-        gazebo_path_msg.header.frame_id = "world";
+    // gazebo_getmodelstate.request.model_name="iris";
+    // if (gazebo_state_client.call(gazebo_getmodelstate)){
+    //     gazebo_odo_msg.pose.pose = gazebo_getmodelstate.response.pose;
+    //     gazebo_odo_msg.twist.twist = gazebo_getmodelstate.response.twist;
+    //     gazebo_odo_msg.header.frame_id = "world";
+    //     gazebo_posestamped_msg.pose.position = gazebo_getmodelstate.response.pose.position;
+    //     gazebo_posestamped_msg.pose.orientation = gazebo_getmodelstate.response.pose.orientation;
+    //     gazebo_posestamped_msg.header.frame_id = "world";
+    //     gazebo_path_msg.poses.push_back(gazebo_posestamped_msg);
+    //     gazebo_path_msg.header.frame_id = "world";
 
-        gazebo_pub_odo.publish(gazebo_odo_msg);
-        gazebo_pub_posestamped.publish(gazebo_posestamped_msg);
-        gazebo_pub_path.publish(gazebo_path_msg);
-    }
-    else{}
+    //     gazebo_pub_odo.publish(gazebo_odo_msg);
+    //     gazebo_pub_posestamped.publish(gazebo_posestamped_msg);
+    //     gazebo_pub_path.publish(gazebo_path_msg);
+    // }
+    // else{}
     ros::spinOnce();
     loop_rate.sleep();
   }
@@ -127,15 +127,37 @@ void VIO_transform::sendTransform(tf::Vector3 input_origin, tf::Quaternion input
     init_transformation = false;
 }
 
-void VIO_transform::ground_truth_sub_callback(const geometry_msgs::PoseStamped msg)
+// use for groundtruth taken from Gazebo API (with posestamped format)
+// void VIO_transform::ground_truth_sub_callback(const geometry_msgs::PoseStamped msg)
+// {
+//     if (init_transformation == true)
+//     {
+//         sendTransform(tf::Vector3(msg.pose.position.x, msg.pose.position.y, msg.pose.position.z),
+//                       tf::Quaternion(msg.pose.orientation.x, msg.pose.orientation.y, msg.pose.orientation.z, msg.pose.orientation.w));
+//         std::cout << msg.pose.position.x << " | " << msg.pose.position.y << " | " << msg.pose.position.z << std::endl;
+//     }
+//     gt_odo_msg.pose.pose = msg.pose;
+
+//     gt_posestamped_msg.pose.position.x = gt_odo_msg.pose.pose.position.x;
+//     gt_posestamped_msg.pose.position.y = gt_odo_msg.pose.pose.position.y;
+//     gt_posestamped_msg.pose.position.z = gt_odo_msg.pose.pose.position.z;
+
+//     gt_path_msg.poses.push_back(gt_posestamped_msg);
+//     gt_odo_msg.header.frame_id = "world";
+//     gt_path_msg.header.frame_id = "world";
+// }
+
+// use for groundtruth taken from mavros (with odometry format)
+
+void VIO_transform::ground_truth_sub_callback(const nav_msgs::Odometry msg)
 {
     if (init_transformation == true)
     {
-        sendTransform(tf::Vector3(msg.pose.position.x, msg.pose.position.y, msg.pose.position.z),
-                      tf::Quaternion(msg.pose.orientation.x, msg.pose.orientation.y, msg.pose.orientation.z, msg.pose.orientation.w));
-        std::cout << msg.pose.position.x << " | " << msg.pose.position.y << " | " << msg.pose.position.z << std::endl;
+        sendTransform(tf::Vector3(msg.pose.pose.position.x, msg.pose.pose.position.y, msg.pose.pose.position.z),
+                      tf::Quaternion(msg.pose.pose.orientation.x, msg.pose.pose.orientation.y, msg.pose.pose.orientation.z, msg.pose.pose.orientation.w));
+        std::cout << msg.pose.pose.position.x << " | " << msg.pose.pose.position.y << " | " << msg.pose.pose.position.z << std::endl;
     }
-    gt_odo_msg.pose.pose = msg.pose;
+    gt_odo_msg.pose.pose = msg.pose.pose;
 
     gt_posestamped_msg.pose.position.x = gt_odo_msg.pose.pose.position.x;
     gt_posestamped_msg.pose.position.y = gt_odo_msg.pose.pose.position.y;

@@ -46,7 +46,7 @@ private:
     ros::Subscriber rovio_vio_odo_sub;
     ros::Subscriber orbslam3_vio_odo_sub;
 
-    ros::Rate loop_rate = 30;
+    ros::Rate loop_rate = 20;
 
     std::string groundtruth_topic = "/default1";      // default
     std::string groundtruth_topic_temp = "/default2"; // default
@@ -94,7 +94,8 @@ private:
     void transforming_VIO_output();
     void sendTransform(tf::Vector3 input_origin, tf::Quaternion input_rotation);
 
-    void ground_truth_sub_callback(const geometry_msgs::PoseStamped msg);
+    void ground_truth_sub_callback(const nav_msgs::Odometry msg);
+    //void ground_truth_sub_callback(const geometry_msgs::PoseStamped msg);
 
     ros::ServiceClient gazebo_state_client;
 
