@@ -11,39 +11,26 @@ VIO_transform::~VIO_transform(){}
 void VIO_transform::groundtruth_type_choice(){
     int groundtruth_choice;
     ROS_INFO("Please input groundtruth topic");
-    ROS_INFO("Input 1 for flightgoogle");
-    ROS_INFO("Input 2 for euroc (Not working yet (work in progress))");
-    ROS_INFO("Input 3 for airsim");
-    ROS_INFO("Input 4 for flightmare");
+    ROS_INFO("Input 1 for /mavros/local_position/odom");
+    ROS_INFO("Input 2 for /gazebo_groundtruth_posestamped))");
 
     std::cin >> groundtruth_choice;
     if (groundtruth_choice == 1)
     {
-        groundtruth_topic = "/uav/odometry";
-        ROS_INFO("Transforming output of flightgoogles dataset");
+        groundtruth_topic = "/mavros/local_position/odom";
+        ROS_INFO("Use /mavros/local_position/odom as groundtruth");
     }
     else if (groundtruth_choice == 2)
     {
-        groundtruth_topic = "/leica/position";
-        ROS_INFO("Transforming output of euroc dataset (Not working yet as groundtruth of EUROC is in different format)");
-    }
-    else if (groundtruth_choice == 3)
-    {
-        groundtruth_topic = "/mavros/local_position/odom";
-        ROS_INFO("Transforming output of airsim dataset");
-    }
-    else if (groundtruth_choice == 4)
-    {
         groundtruth_topic = "/gazebo_groundtruth_posestamped";
-        ROS_INFO("Transforming output of flightmare dataset");
+        ROS_INFO("Use /gazebo_groundtruth_posestamped as groundtruth");
     }
     else
     {
-        groundtruth_topic = "/uav/odometry";
-        ROS_INFO("Transforming output of flightgoogles dataset");
+        groundtruth_type_choice();
     }
 
-    ROS_INFO("FINISH CHOOSING SIMULATION PROGRAM");
+    ROS_INFO("Finish choosing groundtruth source");
     init_pub_sub();
 }
 
@@ -72,8 +59,7 @@ void VIO_transform::init_pub_sub(){
     orbslam3_vio_odo_sub = nh_.subscribe("/out_odom", 10, &VIO_transform::orbslam3_vio_odo_sub_callback, this);
 
     std::cout << groundtruth_topic << std::endl;
-    ROS_INFO("FINISH INITIALIZATION ros publisher and subscriber");
-    ROS_INFO("START TRANSFORMING OUTPUT OF VIO FROM VIO_FRAME TO WORLD FRAME");
+    ROS_INFO("Finish init ROS publisher and subscriber");
     transforming_VIO_output();
 }
 
@@ -155,7 +141,7 @@ void VIO_transform::ground_truth_sub_callback(const nav_msgs::Odometry msg)
     {
         sendTransform(tf::Vector3(msg.pose.pose.position.x, msg.pose.pose.position.y, msg.pose.pose.position.z),
                       tf::Quaternion(msg.pose.pose.orientation.x, msg.pose.pose.orientation.y, msg.pose.pose.orientation.z, msg.pose.pose.orientation.w));
-        std::cout << msg.pose.pose.position.x << " | " << msg.pose.pose.position.y << " | " << msg.pose.pose.position.z << std::endl;
+        ROS_INFO("Receive initialization message from visual odometry");
     }
     gt_odo_msg.pose.pose = msg.pose.pose;
 
@@ -178,8 +164,11 @@ void VIO_transform::vins_vio_odo_sub_callback(const nav_msgs::Odometry msg)
     world_vio_odo_msg.pose.pose = world_vio_posestamped_msg.pose;
     world_vio_odo_msg.header = world_vio_posestamped_msg.header;
     world_vio_odo_msg.header.frame_id = "world";
+    world_vio_odo_msg.header.stamp = msg.header.stamp;
     world_vio_posestamped_msg.header.frame_id = "world";
+    world_vio_posestamped_msg.header.stamp = msg.header.stamp;
     world_vio_path_msg.header.frame_id = "world";
+    world_vio_path_msg.header.stamp = msg.header.stamp;
 }
 
 void VIO_transform::rovio_vio_odo_sub_callback(const geometry_msgs::PoseWithCovarianceStamped msg)
