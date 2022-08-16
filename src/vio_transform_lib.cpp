@@ -113,26 +113,6 @@ void VIO_transform::sendTransform(tf::Vector3 input_origin, tf::Quaternion input
     init_transformation = false;
 }
 
-// use for groundtruth taken from Gazebo API (with posestamped format)
-// void VIO_transform::ground_truth_sub_callback(const geometry_msgs::PoseStamped msg)
-// {
-//     if (init_transformation == true)
-//     {
-//         sendTransform(tf::Vector3(msg.pose.position.x, msg.pose.position.y, msg.pose.position.z),
-//                       tf::Quaternion(msg.pose.orientation.x, msg.pose.orientation.y, msg.pose.orientation.z, msg.pose.orientation.w));
-//         std::cout << msg.pose.position.x << " | " << msg.pose.position.y << " | " << msg.pose.position.z << std::endl;
-//     }
-//     gt_odo_msg.pose.pose = msg.pose;
-
-//     gt_posestamped_msg.pose.position.x = gt_odo_msg.pose.pose.position.x;
-//     gt_posestamped_msg.pose.position.y = gt_odo_msg.pose.pose.position.y;
-//     gt_posestamped_msg.pose.position.z = gt_odo_msg.pose.pose.position.z;
-
-//     gt_path_msg.poses.push_back(gt_posestamped_msg);
-//     gt_odo_msg.header.frame_id = "world";
-//     gt_path_msg.header.frame_id = "world";
-// }
-
 // use for groundtruth taken from mavros (with odometry format)
 
 void VIO_transform::ground_truth_sub_callback(const nav_msgs::Odometry msg)
