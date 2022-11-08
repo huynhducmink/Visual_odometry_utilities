@@ -3,6 +3,7 @@
 #include "nav_msgs/Path.h"
 #include "geometry_msgs/PoseStamped.h"
 #include "geometry_msgs/PoseWithCovarianceStamped.h"
+#include "geometry_msgs/TransformStamped.h"
 #include "gazebo_msgs/ModelState.h"
 #include "gazebo_msgs/GetModelState.h"
 #include "std_msgs/Bool.h"
@@ -27,8 +28,8 @@ private:
     // From mavros
     ros::Publisher ground_truth_pub_odo;
     ros::Publisher ground_truth_pub_path;
+    ros::Publisher ground_truth_pub_tf;
     ros::Subscriber groud_truth_sub;
-    ros::Subscriber groud_truth_sub_temp;
 
     // From Gazebo API
     ros::Subscriber gazebo_sub_odo_pose;
@@ -36,6 +37,7 @@ private:
     ros::Publisher gazebo_pub_posestamped;
     ros::Publisher gazebo_pub_path;
 
+		// Odometry
     ros::Publisher vio_pub_odo;
     ros::Publisher vio_pub_odo_to_px4;
     ros::Publisher vio_pub_odo_posestamped;
@@ -45,6 +47,7 @@ private:
     ros::Subscriber vins_bool_receive_first_image;
     ros::Subscriber rovio_vio_odo_sub;
     ros::Subscriber orbslam3_vio_odo_sub;
+    ros::Subscriber msf_vio_odo_sub;
 
     ros::Rate loop_rate = 60;
 
@@ -55,6 +58,7 @@ private:
     nav_msgs::Odometry gt_odo_msg;
     geometry_msgs::PoseStamped gt_posestamped_msg;
     nav_msgs::Path gt_path_msg;
+    geometry_msgs::TransformStamped gt_tfstamped_msg;
 
     // Ground truth message (from Gazebo API)
     gazebo_msgs::GetModelState gazebo_getmodelstate;
@@ -103,4 +107,5 @@ private:
     void vins_bool_receive_first_image_callback(const std_msgs::Bool msg);
     void rovio_vio_odo_sub_callback(const geometry_msgs::PoseWithCovarianceStamped msg);
     void orbslam3_vio_odo_sub_callback(const geometry_msgs::PoseStamped msg);
+    void msf_vio_odo_sub_callback(const nav_msgs::Odometry msg);
 };
