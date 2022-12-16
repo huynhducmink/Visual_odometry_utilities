@@ -88,17 +88,17 @@ void VIO_transform::transforming_VIO_output(){
     // else{}
 
     // Lidar tranform
-    try{
-      lidar_tf_listener.lookupTransform("/camera_init","aft_mapped",ros::Time(0),lidar_tf_msg);
-      lidar_tf_msg.frame_id_ = "world";
-      lidar_tf_msg.child_frame_id_ = "os_sensor";
-      lidar_tf_msg.stamp_ = ros::Time::now();
-      lidar_tf_broadcaster.sendTransform(lidar_tf_msg);
-    }
-    catch (tf::TransformException ex) {
-      ROS_ERROR("%s", ex.what());
-      ros::Duration(1.0).sleep();
-    }
+//    try{
+//      lidar_tf_listener.lookupTransform("/camera_init","aft_mapped",ros::Time(0),lidar_tf_msg);
+//      lidar_tf_msg.frame_id_ = "world";
+//      lidar_tf_msg.child_frame_id_ = "os_sensor";
+//      lidar_tf_msg.stamp_ = ros::Time::now();
+//      lidar_tf_broadcaster.sendTransform(lidar_tf_msg);
+//    }
+//    catch (tf::TransformException ex) {
+//      ROS_ERROR("%s", ex.what());
+//      ros::Duration(1.0).sleep();
+//    }
 
     ros::spinOnce();
     loop_rate.sleep();
