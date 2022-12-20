@@ -52,18 +52,11 @@ void VIO_transform::transforming_VIO_output(){
 
   while (ros::ok())
   {
-    ground_truth_pub_odo.publish(gt_odo_msg);
-    ground_truth_pub_path.publish(gt_path_msg);
-    ground_truth_pub_tf.publish(gt_tfstamped_msg);
 
-    gazebo_pub_odo.publish(gazebo_odo_msg);
-    gazebo_pub_path.publish(gazebo_path_msg);
+    //gazebo_pub_odo.publish(gazebo_odo_msg);
+    //gazebo_pub_path.publish(gazebo_path_msg);
 
-    vio_pub_odo.publish(world_vio_odo_msg);
-    vio_pub_odo_to_px4.publish(vio_odo_to_px4_msg);
-    vio_pub_odo_posestamped.publish(world_vio_posestamped_msg);
     //vio_pub_odo_posestamped_to_px4.publish(vio_posestamped_to_px4_msg);
-    vio_pub_path.publish(world_vio_path_msg);
     //std::cout << "Current VIO position in world: " << world_vio_odo_msg.pose.pose.position.x << " | " 
     //    << world_vio_odo_msg.pose.pose.position.y << " | " 
     //    << world_vio_odo_msg.pose.pose.position.z << std::endl;
@@ -149,6 +142,10 @@ void VIO_transform::ground_truth_sub_callback(const nav_msgs::Odometry msg)
     map_to_base_tf.setOrigin(tf::Vector3(msg.pose.pose.position.x,msg.pose.pose.position.y,msg.pose.pose.position.z));
     map_to_base_tf.setRotation(tf::Quaternion(msg.pose.pose.orientation.x,msg.pose.pose.orientation.y,msg.pose.pose.orientation.z,msg.pose.pose.orientation.w));
     map_to_base_tf_br.sendTransform(tf::StampedTransform(map_to_base_tf,msg.header.stamp,"world","base_link"));
+
+    ground_truth_pub_odo.publish(gt_odo_msg);
+    ground_truth_pub_path.publish(gt_path_msg);
+    ground_truth_pub_tf.publish(gt_tfstamped_msg);
 }
 
 
@@ -179,6 +176,10 @@ void VIO_transform::rovio_vio_odo_sub_callback(const geometry_msgs::PoseWithCova
     world_vio_odo_msg.header.frame_id = "world";
     world_vio_posestamped_msg.header.frame_id = "world";
     world_vio_path_msg.header.frame_id = "world";
+    vio_pub_odo.publish(world_vio_odo_msg);
+    vio_pub_odo_to_px4.publish(vio_odo_to_px4_msg);
+    vio_pub_odo_posestamped.publish(world_vio_posestamped_msg);
+    vio_pub_path.publish(world_vio_path_msg);
 }
 
 void VIO_transform::orbslam3_vio_odo_sub_callback(const geometry_msgs::PoseStamped msg)
@@ -192,6 +193,10 @@ void VIO_transform::orbslam3_vio_odo_sub_callback(const geometry_msgs::PoseStamp
     world_vio_odo_msg.header.frame_id = "world";
     world_vio_posestamped_msg.header.frame_id = "world";
     world_vio_path_msg.header.frame_id = "world";
+    vio_pub_odo.publish(world_vio_odo_msg);
+    vio_pub_odo_to_px4.publish(vio_odo_to_px4_msg);
+    vio_pub_odo_posestamped.publish(world_vio_posestamped_msg);
+    vio_pub_path.publish(world_vio_path_msg);
 }
 
 void VIO_transform::msf_vio_odo_sub_callback(const nav_msgs::Odometry msg) //convert from odometry to pose
@@ -208,6 +213,10 @@ void VIO_transform::msf_vio_odo_sub_callback(const nav_msgs::Odometry msg) //con
     world_vio_posestamped_msg.header.stamp = msg.header.stamp;
     world_vio_path_msg.header.frame_id = "world";
     world_vio_path_msg.header.stamp = msg.header.stamp;
+    vio_pub_odo.publish(world_vio_odo_msg);
+    vio_pub_odo_to_px4.publish(vio_odo_to_px4_msg);
+    vio_pub_odo_posestamped.publish(world_vio_posestamped_msg);
+    vio_pub_path.publish(world_vio_path_msg);
 }
 
 void VIO_transform::vins_bool_receive_first_image_callback(const std_msgs::Bool msg){
