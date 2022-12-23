@@ -107,5 +107,5 @@ private:
     void vins_bool_receive_first_image_callback(const std_msgs::Bool msg);
     void rovio_vio_odo_sub_callback(const geometry_msgs::PoseWithCovarianceStamped msg);
     void orbslam3_vio_odo_sub_callback(const geometry_msgs::PoseStamped msg);
-    void msf_vio_odo_sub_callback(const nav_msgs::Odometry msg);
+    void msf_vio_odo_sub_callback(const geometry_msgs::PoseWithCovarianceStamped msg);
 };

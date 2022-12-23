@@ -199,7 +199,7 @@ void VIO_transform::orbslam3_vio_odo_sub_callback(const geometry_msgs::PoseStamp
     vio_pub_path.publish(world_vio_path_msg);
 }
 
-void VIO_transform::msf_vio_odo_sub_callback(const nav_msgs::Odometry msg) //convert from odometry to pose
+void VIO_transform::msf_vio_odo_sub_callback(const geometry_msgs::PoseWithCovarianceStamped msg) //convert from odometry to pose //PoseWithCovarianceStamped
 {
     vio_posestamped_msg.pose = msg.pose.pose;
     //vio_posestamped_msg.header.frame_id = "vio_frame";
