@@ -164,6 +164,10 @@ void VIO_transform::vins_vio_odo_sub_callback(const nav_msgs::Odometry msg)
     world_vio_posestamped_msg.header.stamp = msg.header.stamp;
     world_vio_path_msg.header.frame_id = "world";
     world_vio_path_msg.header.stamp = msg.header.stamp;
+
+    vio_pub_odo.publish(world_vio_odo_msg);
+    vio_pub_odo_posestamped.publish(world_vio_posestamped_msg);
+    vio_pub_path.publish(world_vio_path_msg);
 }
 
 void VIO_transform::rovio_vio_odo_sub_callback(const geometry_msgs::PoseWithCovarianceStamped msg)
@@ -174,11 +178,15 @@ void VIO_transform::rovio_vio_odo_sub_callback(const geometry_msgs::PoseWithCova
     world_vio_path_msg.poses.push_back(world_vio_posestamped_msg);
     world_vio_odo_msg.pose.pose = world_vio_posestamped_msg.pose;
     world_vio_odo_msg.header = world_vio_posestamped_msg.header;
+
     world_vio_odo_msg.header.frame_id = "world";
+    world_vio_odo_msg.header.stamp = msg.header.stamp;
     world_vio_posestamped_msg.header.frame_id = "world";
+    world_vio_posestamped_msg.header.stamp = msg.header.stamp;
     world_vio_path_msg.header.frame_id = "world";
+    world_vio_path_msg.header.stamp = msg.header.stamp;
+
     vio_pub_odo.publish(world_vio_odo_msg);
-    vio_pub_odo_to_px4.publish(vio_odo_to_px4_msg);
     vio_pub_odo_posestamped.publish(world_vio_posestamped_msg);
     vio_pub_path.publish(world_vio_path_msg);
 }
@@ -191,11 +199,15 @@ void VIO_transform::orbslam3_vio_odo_sub_callback(const geometry_msgs::PoseStamp
     world_vio_path_msg.poses.push_back(world_vio_posestamped_msg);
     world_vio_odo_msg.pose.pose = world_vio_posestamped_msg.pose;
     world_vio_odo_msg.header = world_vio_posestamped_msg.header;
+
     world_vio_odo_msg.header.frame_id = "world";
+    world_vio_odo_msg.header.stamp = msg.header.stamp;
     world_vio_posestamped_msg.header.frame_id = "world";
+    world_vio_posestamped_msg.header.stamp = msg.header.stamp;
     world_vio_path_msg.header.frame_id = "world";
+    world_vio_path_msg.header.stamp = msg.header.stamp;
+
     vio_pub_odo.publish(world_vio_odo_msg);
-    vio_pub_odo_to_px4.publish(vio_odo_to_px4_msg);
     vio_pub_odo_posestamped.publish(world_vio_posestamped_msg);
     vio_pub_path.publish(world_vio_path_msg);
 }
